@@ -14,7 +14,7 @@ type Note struct {
 	CreatedAt      string `json:"created_at"`
 }
 
-func NewNote(id, title, link, nextReminderAt, createdAt string) Note {
+func NewNote(title, link string) Note {
 	currentTime := time.Now()
 	return Note{
 		ID:             uuid.NewString(),

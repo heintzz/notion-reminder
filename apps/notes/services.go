@@ -2,6 +2,7 @@ package notes
 
 type repositoryContract interface {
 	GetNotes() ([]Note, error)
+	CreateNote(note Note) error
 }
 
 type service struct {
@@ -21,4 +22,19 @@ func (s service) getNotes() ([]Note, error) {
 	}
 
 	return notes, nil
+}
+
+func (s service) createNote(noteRequest createNoteParams) error {
+	err := noteRequest.Validate()
+	if err != nil {
+		return err
+	}
+
+	newNote := NewNote(noteRequest.Title, noteRequest.Link)
+	err = s.repo.CreateNote(newNote)
+
+	if err != nil {
+		return err
+	}
+	return nil
 }
