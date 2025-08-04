@@ -10,5 +10,6 @@ func Run(router chi.Router) {
 	router.Route("/v1/notes", func(r chi.Router) {
 		r.Get("/", handler.getNotesHandler)
 		r.Post("/", handler.createNoteHandler)
+		r.Put("/{id}", handler.updateNoteHandler)
 	})
 }

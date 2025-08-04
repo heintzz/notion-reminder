@@ -3,6 +3,7 @@ package notes
 type repositoryContract interface {
 	GetNotes() ([]Note, error)
 	CreateNote(note Note) error
+	EditNote(note editNoteParams, id string) (Note, error)
 }
 
 type service struct {
@@ -37,4 +38,13 @@ func (s service) createNote(noteRequest createNoteParams) error {
 		return err
 	}
 	return nil
+}
+
+func (s service) editNote(editRequest editNoteParams, id string) (note Note, err error) {
+	note, err = s.repo.EditNote(editRequest, id)
+	if err != nil {
+		return Note{}, err
+	}
+
+	return note, nil
 }

@@ -32,39 +32,75 @@ func (r repository) GetNotes() (notes []Note, err error) {
 	return notes, nil
 }
 
-func (r repository) CreateNote(newNote Note) (err error) {
-	var notes []Note
-	data, err := os.ReadFile(r.filepath)
-	if err != nil {
-		return err
+func (r repository) GetNoteByID(id string) (note Note, err error) {
+	notes, err := r.GetNotes()
+	for _, note := range notes {
+		if note.ID == id {
+			n := note
+			return n, nil
+		}
 	}
 
-	err = json.Unmarshal(data, &notes)
-	if err != nil {
+	return Note{}, nil
+}
+
+func (r repository) CreateNote(newNote Note) (err error) {
+	notes, err := r.GetNotes()
+	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
 
 	notes = append(notes, newNote)
 
-	_, err = os.Stat(r.filepath)
-	if os.IsNotExist(err) {
-		return err
-	}
-
-	file, err := os.Create(filepath)
-	if err != nil {
-		return errors.New("error creating new file")
-	}
-
-	jsonData, err := json.Marshal(notes)
+	jsonData, err := json.MarshalIndent(notes, "", "  ")
 	if err != nil {
 		return err
 	}
 
-	_, err = file.Write(jsonData)
+	err = os.WriteFile(r.filepath, jsonData, 0644)
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (r repository) EditNote(editRequest editNoteParams, id string) (note Note, err error) {
+	notes, err := r.GetNotes()
+	if err != nil && !os.IsNotExist(err) {
+		return Note{}, err
+	}
+
+	var newNote Note
+	var isExist bool = false
+
+	for i, n := range notes {
+		if n.ID == id {
+			if editRequest.Link != nil {
+				notes[i].Link = *editRequest.Link
+			}
+			if editRequest.Title != nil {
+				notes[i].Title = *editRequest.Title
+			}
+			newNote = notes[i]
+			isExist = true
+			break
+		}
+	}
+
+	if !isExist {
+		return Note{}, errors.New("note not found")
+	}
+
+	jsonData, err := json.MarshalIndent(notes, "", "  ")
+	if err != nil {
+		return Note{}, err
+	}
+
+	err = os.WriteFile(r.filepath, jsonData, 0644)
+	if err != nil {
+		return Note{}, err
+	}
+
+	return newNote, nil
 }

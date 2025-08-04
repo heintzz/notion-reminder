@@ -39,22 +39,22 @@ func (h handler) getNotesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h handler) createNoteHandler(w http.ResponseWriter, r *http.Request) {
-	var req createNoteParams
+	var request createNoteParams
 
-	err := json.NewDecoder(r.Body).Decode(&req)
+	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		resp := map[string]interface{}{
 			"status":  http.StatusBadRequest,
 			"error":   "Bad Request",
 			"message": "Invalid request payload",
 		}
-		w.WriteHeader(http.StatusBadRequest)
 		jsonResp, _ := json.Marshal(resp)
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write(jsonResp)
 		return
 	}
 
-	err = h.svc.createNote(req)
+	err = h.svc.createNote(request)
 	if err != nil {
 		resp := map[string]interface{}{
 			"status":  http.StatusInternalServerError,
@@ -67,5 +67,45 @@ func (h handler) createNoteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("mantap"))
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"status":  http.StatusCreated,
+		"message": "Note created successfully",
+	})
+}
+
+func (h handler) updateNoteHandler(w http.ResponseWriter, r *http.Request) {
+	var request editNoteParams
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		resp := map[string]interface{}{
+			"status":  http.StatusBadRequest,
+			"error":   "Bad Request",
+			"message": "Invalid request payload",
+		}
+		jsonResp, _ := json.Marshal(resp)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(jsonResp)
+		return
+	}
+
+	updatedNote, err := h.svc.editNote(request, r.PathValue("id"))
+	if err != nil {
+		resp := map[string]interface{}{
+			"status":  http.StatusInternalServerError,
+			"error":   "Internal Server Error",
+			"message": "Failed to edit note",
+		}
+		jsonResp, _ := json.Marshal(resp)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(jsonResp)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"status":  http.StatusCreated,
+		"message": "Note edited successfully",
+		"data":    updatedNote,
+	})
 }
