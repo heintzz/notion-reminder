@@ -34,6 +34,10 @@ func (r repository) GetNotes() (notes []Note, err error) {
 
 func (r repository) GetNoteByID(id string) (note Note, err error) {
 	notes, err := r.GetNotes()
+	if err != nil {
+		return Note{}, errors.New("note is not found")
+	}
+
 	for _, note := range notes {
 		if note.ID == id {
 			n := note
@@ -41,7 +45,7 @@ func (r repository) GetNoteByID(id string) (note Note, err error) {
 		}
 	}
 
-	return Note{}, nil
+	return
 }
 
 func (r repository) CreateNote(newNote Note) (err error) {
@@ -76,11 +80,11 @@ func (r repository) EditNote(editRequest editNoteParams, id string) (note Note, 
 
 	for i, n := range notes {
 		if n.ID == id {
-			if editRequest.Link != nil {
-				notes[i].Link = *editRequest.Link
+			if editRequest.Link != "" {
+				notes[i].Link = editRequest.Link
 			}
-			if editRequest.Title != nil {
-				notes[i].Title = *editRequest.Title
+			if editRequest.Title != "" {
+				notes[i].Title = editRequest.Title
 			}
 			newNote = notes[i]
 			isExist = true

@@ -8,8 +8,8 @@ type createNoteParams struct {
 }
 
 type editNoteParams struct {
-	Title *string `json:"title,omitempty"`
-	Link  *string `json:"link,omitempty"`
+	Title string `json:"title,omitempty"`
+	Link  string `json:"link,omitempty"`
 }
 
 func (req createNoteParams) Validate() error {

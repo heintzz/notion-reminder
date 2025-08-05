@@ -94,7 +94,7 @@ func (h handler) updateNoteHandler(w http.ResponseWriter, r *http.Request) {
 		resp := map[string]interface{}{
 			"status":  http.StatusInternalServerError,
 			"error":   "Internal Server Error",
-			"message": "Failed to edit note",
+			"message": err.Error(),
 		}
 		jsonResp, _ := json.Marshal(resp)
 		w.WriteHeader(http.StatusInternalServerError)
