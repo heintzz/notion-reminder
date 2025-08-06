@@ -2,6 +2,7 @@ package notes
 
 import (
 	"encoding/json"
+	"heintzz/notion-reminder/internal/helper"
 	"net/http"
 )
 
@@ -56,10 +57,14 @@ func (h handler) createNoteHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = h.svc.createNote(request)
 	if err != nil {
+		errors, ok := helper.ErrorMapping[err.Error()]
+		if !ok {
+			errors = helper.ErrorGeneral
+		}
 		resp := map[string]interface{}{
-			"status":  http.StatusInternalServerError,
-			"error":   "Internal Server Error",
-			"message": "Failed to create note",
+			"status":  errors.HttpCode,
+			"error":   errors.Error,
+			"message": errors.Message,
 		}
 		jsonResp, _ := json.Marshal(resp)
 		w.WriteHeader(http.StatusInternalServerError)

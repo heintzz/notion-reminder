@@ -3,6 +3,7 @@ package notes
 import (
 	"encoding/json"
 	"errors"
+	"heintzz/notion-reminder/internal/helper"
 	"os"
 )
 
@@ -35,7 +36,7 @@ func (r repository) GetNotes() (notes []Note, err error) {
 func (r repository) GetNoteByID(id string) (note Note, err error) {
 	notes, err := r.GetNotes()
 	if err != nil {
-		return Note{}, errors.New("note is not found")
+		return Note{}, helper.ErrNoteNotFound
 	}
 
 	for _, note := range notes {

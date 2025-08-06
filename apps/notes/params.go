@@ -1,6 +1,8 @@
 package notes
 
-import "errors"
+import (
+	"heintzz/notion-reminder/internal/helper"
+)
 
 type createNoteParams struct {
 	Title string `json:"title"`
@@ -14,10 +16,10 @@ type editNoteParams struct {
 
 func (req createNoteParams) Validate() error {
 	if req.Title == "" {
-		return errors.New("note title is required")
+		return helper.ErrTitleRequired
 	}
 	if req.Link == "" {
-		return errors.New("note link is required")
+		return helper.ErrLinkRequired
 	}
 	return nil
 }
